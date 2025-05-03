@@ -224,10 +224,15 @@ public class ResolverImplTest extends TestCase
     }
 
     public void testFindUpdatableLocalResource() throws Exception {
+        Bundle mockBundle = EasyMock.createMock(Bundle.class);
+        EasyMock.expect(mockBundle.getState()).andReturn(Bundle.ACTIVE).anyTimes();
+        EasyMock.expect(mockBundle.getHeaders()).andReturn(new Hashtable<>()).anyTimes();
+
         LocalResource resource = EasyMock.createMock(LocalResource.class);
         EasyMock.expect(resource.getSymbolicName()).andReturn("com.test.bundleA").anyTimes();
         EasyMock.expect(resource.getRequirements()).andReturn(null).anyTimes();
         EasyMock.expect(resource.getCapabilities()).andReturn(null).anyTimes();
+        EasyMock.expect(resource.getBundle()).andReturn(mockBundle).anyTimes();
         EasyMock.expect(resource.getURI()).andReturn("http://test.com").anyTimes();
         EasyMock.expect(resource.isLocal()).andReturn(true).anyTimes();
 
@@ -242,7 +247,7 @@ public class ResolverImplTest extends TestCase
 
         BundleContext bundleContext = EasyMock.createMock(BundleContext.class);
 
-        EasyMock.replay(resource, localRepo);
+        EasyMock.replay(resource, mockBundle, localRepo);
 
         ResolverImpl resolver = new ResolverImpl(bundleContext, localRepos, new Logger(bundleContext)) {
             @Override

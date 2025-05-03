@@ -533,6 +533,8 @@ public class ResolverImpl implements Resolver
             // resources being deployed.
             if ((localResource != null) &&
                     isResourceUpdatable(localResource, deployResource, deployResources)) {
+                // Track if we need to start the bundle
+                boolean doStartBundle = (flags & START) != 0;
                 // Only update if it is a different version.
                 if (!localResource.equals(deployResource)) {
                     // Update the installed bundle.
@@ -540,7 +542,6 @@ public class ResolverImpl implements Resolver
                         // stop the bundle before updating to prevent
                         // the bundle update from throwing due to not yet
                         // resolved dependencies
-                        boolean doStartBundle = (flags & START) != 0;
                         if (localResource.getBundle().getState() == Bundle.ACTIVE) {
                             doStartBundle = true;
                             localResource.getBundle().stop();
@@ -562,6 +563,13 @@ public class ResolverImpl implements Resolver
                                 "Resolver: Update error - " + getBundleName(localResource.getBundle()),
                                 ex);
                         return;
+                    }
+                }
+                else if (doStartBundle && !isFragmentBundle(localResource.getBundle())) {
+                    // If necessary, save the updated bundle to be started later.
+                    int state = localResource.getBundle().getState();
+                    if (state == Bundle.INSTALLED || state == Bundle.RESOLVED) {
+                        startList.add(localResource.getBundle());
                     }
                 }
             } else {
