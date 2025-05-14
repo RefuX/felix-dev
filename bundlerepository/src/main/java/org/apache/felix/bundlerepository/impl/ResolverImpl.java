@@ -553,9 +553,7 @@ public class ResolverImpl implements Resolver
                         // started later.
                         if (doStartBundle) {
                             Bundle bundle = localResource.getBundle();
-                            if (!isFragmentBundle(bundle)) {
-                                startList.add(bundle);
-                            }
+                            startList.add(bundle);
                         }
                     } catch (Exception ex) {
                         m_logger.log(
@@ -565,7 +563,7 @@ public class ResolverImpl implements Resolver
                         return;
                     }
                 }
-                else if (doStartBundle && !isFragmentBundle(localResource.getBundle())) {
+                else if (doStartBundle) {
                     // If necessary, save the updated bundle to be started later.
                     int state = localResource.getBundle().getState();
                     if (state == Bundle.INSTALLED || state == Bundle.RESOLVED) {
@@ -589,9 +587,7 @@ public class ResolverImpl implements Resolver
                     // If necessary, save the installed bundle to be
                     // started later.
                     if ((flags & START) != 0) {
-                        if (!isFragmentBundle(bundle)) {
-                            startList.add(bundle);
-                        }
+                        startList.add(bundle);
                     }
                 } catch (Exception ex) {
                     m_logger.log(
@@ -605,7 +601,9 @@ public class ResolverImpl implements Resolver
 
         for (Bundle aStartList : startList) {
             try {
-                aStartList.start();
+                if (!isFragmentBundle(aStartList)) {
+                    aStartList.start();
+                }
             } catch (BundleException ex) {
                 m_logger.log(
                         Logger.LOG_ERROR,
